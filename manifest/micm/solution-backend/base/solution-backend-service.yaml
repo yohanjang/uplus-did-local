@@ -1,0 +1,17 @@
+##############################
+# Headless Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: solution-backend
+  name: solution-backend-service-headless
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+      targetPort: slt-bkd
+      protocol: TCP
+  selector:
+    app: solution-backend

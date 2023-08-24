@@ -1,0 +1,6 @@
+{
+  "account":"solution-01",
+  "password":"solution-01-1234",
+  "admin_account":"solution-01",
+  "admin_password":"solution-01-1234"
+}

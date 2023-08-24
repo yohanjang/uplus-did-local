@@ -1,0 +1,31 @@
+##############################
+# NodePort Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: service-ui
+  name: service-ui-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: svc-ui
+      nodePort: 30004   # [ 개발 환경 ] service-ui 전용 Nodeport 번호
+      protocol: TCP
+  selector:
+    app: service-ui
+---
+##############################
+# ExternalName Service
+##############################
+### [ 개발 ]  service-backend 접속 ExternalName Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-ui-service-external-service-backend
+spec:
+  type: ExternalName
+  externalName: service-backend-service-headless.dmicma.svc.cluster.local

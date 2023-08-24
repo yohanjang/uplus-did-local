@@ -1,0 +1,71 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: service-backend-env-configmap
+data:
+  DID_ENV_PROFILE: "dev"
+
+  ### Service 관련 서비스 가동 Port ::: START
+
+  # Service Backend 가동 Port
+  DID_SERVICE_BACKEND_SERVER_PORT: "8080"
+
+  ### Service 관련 서비스 가동 Port ::: START
+
+  ### Service Postgresql
+  DID_DATABASE_URL: "jdbc:postgresql://service-backend-service-external-service-postgresql:15432/service-dev"
+  DID_DATABASE_SCHEME: "did_service"
+  DID_DATABASE_USER: service-01
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_DATABASE_PASS: "service-01-1234"
+  DID_DATABASE_DDL_AUTO: "none"
+  HIBERNATE_SQL_COMMENT: "true"
+  DID_DATABASE_SHOW_SQL: "true"
+  P6SPY_ENABLE_LOGGING: "true"
+
+  ### Service Redis
+  DID_REDIS_HOST: "service-backend-service-external-service-redis"
+  DID_REDIS_PORT: "15433"
+  DID_REDIS_DB_INDEX: "1"
+  DID_REDIS_POOL_MAX_ACTIVE: "8"
+  DID_REDIS_POOL_MAX_IDLE: "8"
+  DID_REDIS_POOL_MIN_IDLE: "0"
+
+  ### JWT
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_JWT_SECRET: "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret"
+  # DID_SHA256_SALT: "bGVtb25haWRkaWRzb2x1dGlvbmJsb2NrY2hhaW5sZ2Nuc21hZ29r"
+
+  ### Feign Client
+  DID_REST_CLIENT_CONNECT_TIMEOUT: "10000"
+  DID_REST_CLIENT_READ_TIMEOUT: "30000"
+  DID_REST_CLIENT_LOG_LEVEL: "FULL"
+
+  ### aries
+  # acapy-agency 내부 접속 URL
+  DID_ARIES_ADMIN_URL: "http://service-backend-service-external-acapy-agency:8080"
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_ARIES_ADMIN_API_KEY: "admin-api-key-1234"
+  DID_ARIES_WALLET_TOKEN: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ3YWxsZXRfaWQiOiI2ZGE5OTYyZi01OGM4LTRmMjktOTNiNC1iNGE4ZTE1MjNlOWYiLCJpYXQiOjE2OTEzODEzNzJ9.6pYD-JoN0pdDdYiunpdvUtg1X92K5VBAoYtpvhzA96E"
+
+  ### DID Variables
+  DID_CORE_CRYPTO_KEY_CHACHA20: "NghXzPicCYK6cvYpxuAe4U75u5I8wsc190BUvvmGHqE="
+  # [ TO-BE ] 추후 service-backend 개발 도메인 적용 필요
+  DID_SERVICE_QR_URL: "http://localhost:30004"
+  # DID_SOLUTION_BACKEND_URL : solution-backend 내부 접속 URL
+  DID_SOLUTION_BACKEND_URL: "http://solution-backend-service-headless:8080"
+  DID_ENV_NAMESPACE: "tenant-lgcns"
+  DID_SOLUTION_APIKEY: "tenant-lgcns"
+  DID_SERVICE_SERVER_ENV: "dev"
+  # lil_url
+  # idp_url
+  # lil_api_key
+  DID_IDPPLUS_APIKEY: "zXKnvmCZx3xoA4ADv9xrbLdqVoH57OjVistecrMm8iYEoUXV"
+
+  ### Logback Logging
+  DID_APP_LOGBACK_PATH: "classpath:logback-spring.xml"
+  DID_APP_ROOT_LOG_LEVEL: "DEBUG"
+  DID_APP_LOGS_PATH: "/home/jboss/logs"
+  DID_APP_LOGS_MAX_HISTROY: "15"
+  DID_APP_LOGS_MAX_FILE_SIZE: "500KB"
+  DID_APP_LOGS_TOTAL_SIZE_CAP: "100MB"

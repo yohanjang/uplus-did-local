@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  app: service-backend
+images:
+- name: lgu-did/service-backend
+  newName: nexus.example.com:5000/dmicma/service-backend-dev
+  newTag: 20230817-141616
+generatorOptions:
+  disableNameSuffixHash: true
+replicas:
+- count: 1
+  name: service-backend-deployment
+resources:
+- ../../base
+- configmap-dev.yaml
+- service-dev.yaml
+patches:
+- path: deployment-dev.yaml

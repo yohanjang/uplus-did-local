@@ -1,0 +1,78 @@
+/*
+ * [ MICM ] service-ui 개발 환경 CI/CD pipeline
+ */
+
+// Global Pipeline Libraries
+@Library(['micm-shared-lib']) _
+
+currentBuild.displayName = "[개발] service-ui CI/CD Job - # " + currentBuild.number
+
+def pipelineJobArgs = [
+
+  /*
+   * 대상 Application / Profile 정보
+   */
+
+    APPLICATION_NAME : 'service-ui'
+
+  // APP_PROFILE : 'dev', 'stg', 'prd' 중의 하나
+  //               Deploy Repository 내 (MANIFEST_PATH 경로)/overlays 하위의 profile 경로로도 사용함
+  , APP_PROFILE : 'dev'
+
+  /*
+   * Yarn 빌드 관련 정보
+   */
+
+  // Yarn 빌드시 사용할 Source Repository 내 nodeJs 압축파일 경로
+  , NODEJS_ARCHIVE_RELATIVE_PATH : 'cicd'
+
+  // Yarn 빌드시 사용할 Source Repository 내 nodeJs 압축파일 이름
+  , NODEJS_ARCHIVE_NAME : 'node-service-ui-linux-x64.tar.xz'
+
+  // Yarn 빌드시 'yarn run (...)' 에 지정할 command 목록
+  // @see packages.json
+  , YARN_RUN_COMMAND_LIST : [
+    'build:dev'
+  ]
+
+  /*
+   * CI 성공시 생성되는 new image 관련 정보
+   */
+
+  // 새로운 Image 의 이름
+  , NEW_IMAGE_NAME : 'dmicma/service-ui-dev'
+
+  /*
+   * CD (배포) 관련 정보
+   */
+
+  // Deploy Repository 내 해당 Application 의 Manifest 경로
+  , MANIFEST_PATH : 'manifest/micm/service-ui'
+
+  // Deploy Repository 의 해당 Application 의 manifest 에 지정된 해당 Image 의 Name ( ex : lgu-did/service-backend )
+  // 해당 Image Name 은 실제로 존재하는 Image URL 이 아니며, CD pipeline 에서 실제 배포할 Image 정보 반영시 사용함
+  , IMAGE_NAME_IN_MANIFEST : 'lgu-did/service-ui'
+
+  /*
+   * Source Repository 관련 Jenkins credentialsId
+   * - 해당 환경의 Jenkinsfile 에서 지정하지 않아도 Image 빌드시 공통 Pipeline 에서 자동으로 기본값 설정됨
+   * - 기본값 아닌 Jenkins credentialsId 를 사용하고자 하는 경우, 주석 해제 후 사용함
+   */
+  // , SOURCE_REPOSITORY_GIT_CREDENTIALS_ID : ''
+
+  /*
+   * base image 관련 정보
+   * - 해당 환경의 Jenkinsfile 에서 지정하지 않아도 Image 빌드시 공통 Pipeline 에서 자동으로 기본값 설정됨
+   * - 해당 환경에서 별도의 base image 를 사용하고자 하는 경우, 주석 해제 후 사용함
+   */
+
+  // , BASE_IMAGE_REGISTRY_URL : ''
+  // , BASE_IMAGE_NAME         : ''
+  // , BASE_IMAGE_VERSION      : ''
+
+]   // End of pipelineJobArgs
+
+/*
+ * React/Yarn 기반 Application 공통 CI pipeline 실행
+ */
+micmCiReactPipeline(pipelineJobArgs)

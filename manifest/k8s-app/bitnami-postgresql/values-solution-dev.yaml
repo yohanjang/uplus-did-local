@@ -1,0 +1,100 @@
+## @section Global parameters
+
+global:
+  imageRegistry: nexus.example.com:5000
+  imagePullSecrets:
+  - private-image-registry
+  postgresql:
+    auth:
+      username: "solution-01"
+      database: "solution-dev"
+      existingSecret: "micm-dev-postgresql-secret"
+      secretKeys:
+        adminPasswordKey: "solution-postgres-password"
+        userPasswordKey: "solution-user-password"
+    ## @param global.postgresql.service.ports.postgresql PostgreSQL service port (overrides `service.ports.postgresql`)
+    ##
+    service:
+      ports:
+        postgresql: 15432
+
+containerPorts:
+  postgresql: 15432
+
+## Bitnami PostgreSQL image version
+## ref: https://hub.docker.com/r/bitnami/postgresql/tags/
+image:
+  registry: nexus.example.com:5000
+  repository: base/k8s-app
+  tag: bitnami-postgresql-14.4.0-debian-11-r23
+  debug: true
+
+architecture: standalone
+
+## @section PostgreSQL Primary parameters
+##
+primary:
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 15
+    successThreshold: 1
+  readinessProbe:
+    enabled: false
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 75
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+
+  ## PostgreSQL Primary service configuration
+  ##
+  service:
+    ## @param primary.service.type Kubernetes Service type
+    ##
+    type: NodePort
+    ## Node ports to expose
+    ## NOTE: choose port between <30000-32767>
+    ## @param primary.service.nodePorts.postgresql Node port for PostgreSQL
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
+    ##
+    nodePorts:
+      postgresql: "30019"
+  ## PostgreSQL Primary persistence configuration
+  ##
+  persistence:
+    ## @param primary.persistence.enabled Enable PostgreSQL Primary data persistence using PVC
+    ##
+    enabled: true
+    ## @param primary.persistence.storageClass PVC Storage Class for PostgreSQL Primary data volume
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    storageClass: "local-path"
+    ## @param primary.persistence.accessModes PVC Access Mode for PostgreSQL volume
+    ##
+    accessModes:
+      - ReadWriteOnce
+    ## @param primary.persistence.size PVC Storage Request for PostgreSQL volume
+    ##
+    size: 10Gi
+
+## @section Volume Permissions parameters
+
+## Init containers parameters:
+## volumePermissions: Change the owner and group of the persistent volume(s) mountpoint(s) to 'runAsUser:fsGroup' on each node
+##
+volumePermissions:
+  enabled: true
+  image:
+    registry: nexus.example.com:5000
+    repository: base/k8s-app
+    tag: bitnami-shell-11-debian-11-r23
+    pullPolicy: IfNotPresent

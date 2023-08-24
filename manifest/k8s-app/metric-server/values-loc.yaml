@@ -1,0 +1,24 @@
+
+image:
+  # registry.k8s.io/metrics-server/metrics-server:v0.6.3 
+  repository: nexus.example.com:5000/base/k8s-app
+  tag: metrics-server-v0.6.3
+
+imagePullSecrets:
+- name: private-image-registry
+
+replicas: 1
+
+args:
+- --kubelet-insecure-tls
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 2
+    maxUnavailable: 0
+
+topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: kubernetes.io/hostname
+  whenUnsatisfiable: ScheduleAnyway   # DoNotSchedule

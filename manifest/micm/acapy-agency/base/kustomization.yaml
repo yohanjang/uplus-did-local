@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: acapy-agency
+resources:
+  # Acapy Agency Deployment 공통 설정
+  - acapy-agency-deployment.yaml
+  # Acapy Agency Service 공통 설정
+  - acapy-agency-service.yaml

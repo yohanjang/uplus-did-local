@@ -1,0 +1,51 @@
+##############################
+# NodePort Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: service-backend
+  name: service-backend-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: svc-bkd
+      nodePort: 30005   # [ 개발 환경 ] service-backend 전용 Nodeport 번호
+      protocol: TCP
+  selector:
+    app: service-backend
+---
+##############################
+# ExternalName Service
+##############################
+### [ 개발 ]  Service PostgreSQL 접속 ExternalName Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-backend-service-external-service-postgresql
+spec:
+  type: ExternalName
+  # externalName: service-postgresql-0.service-postgresql-hl.dmicma.svc.cluster.local
+  externalName: service-postgresql-hl.dmicma.svc.cluster.local
+---
+### [ 개발 ]  Service Redis 접속 ExternalName Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-backend-service-external-service-redis
+spec:
+  type: ExternalName
+  externalName: service-redis-headless.dmicma.svc.cluster.local
+---
+### [ 개발 ]  Acapy Agency 접속 ExternalName Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-backend-service-external-acapy-agency
+spec:
+  type: ExternalName
+  externalName: acapy-agency-admin-service-headless.dmicma.svc.cluster.local
+---

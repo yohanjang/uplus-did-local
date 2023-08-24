@@ -1,0 +1,17 @@
+##############################
+# Headless Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: service-ui
+  name: service-ui-service-headless
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+      targetPort: svc-ui
+      protocol: TCP
+  selector:
+    app: service-ui

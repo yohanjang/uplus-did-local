@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  app: service-ui
+images:
+- name: lgu-did/service-ui
+  newName: nexus.example.com:5000/dmicma/service-ui-dev
+  newTag: 20230816-091155
+generatorOptions:
+  disableNameSuffixHash: true
+replicas:
+- count: 1
+  name: service-ui-deployment
+resources:
+- ../../base
+- service-dev.yaml
+patches:
+- path: deployment-dev.yaml

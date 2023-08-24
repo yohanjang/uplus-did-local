@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: service-ui
+resources:
+  # service-ui ::: Deployment 공통 설정
+  - service-ui-deployment.yaml
+  # service-ui ::: Service 공통 설정
+  - service-ui-service.yaml

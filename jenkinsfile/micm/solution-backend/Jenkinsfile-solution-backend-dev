@@ -1,0 +1,81 @@
+/*
+ * [ MICM ] solution-backend 개발 환경 CI/CD pipeline
+ */
+
+// Global Pipeline Libraries
+@Library(['micm-shared-lib']) _
+
+currentBuild.displayName = "[개발] solution-backend CI/CD Job - # " + currentBuild.number
+
+def pipelineJobArgs = [
+
+  /*
+   * 대상 Application / Profile 정보
+   */
+
+    APPLICATION_NAME : 'solution-backend'
+
+  // APP_PROFILE : 'dev', 'stg', 'prd' 중의 하나
+  //               Deploy Repository 내 (MANIFEST_PATH 경로)/overlays 하위의 profile 경로로도 사용함
+  , APP_PROFILE : 'dev'
+
+  /*
+   * Gradle 빌드 관련 정보
+   */
+
+  // Gradle 빌드 후 Artifact (jar) 생성 경로
+  , ARTIFACT_FILE_PATH : 'solution-backend/build/libs'
+
+  // Gradle 빌드 후 생성되는 Artifact (jar) 파일명
+  , ARTIFACT_FILE_NAME : 'solution-backend-1.0.0.jar'
+
+  // Gradle 빌드시 'gradle (...)' 에 지정할 command 목록
+  , GRADLE_BUILD_COMMAND_LIST : [
+    ':solution-backend:clean' ,
+    ':solution-backend:build' ,
+    '-Dorg.gradle.daemon=false' ,
+    '-Dorg.gradle.caching=false' ,
+    '--exclude-task test'
+  ]
+
+  /*
+   * CI 성공시 생성되는 new image 관련 정보
+   */
+
+  // 새로운 Image 의 이름
+  , NEW_IMAGE_NAME : 'dmicma/solution-backend-dev'
+
+  /*
+   * CD (배포) 관련 정보
+   */
+
+  // Deploy Repository 내 해당 Application 의 Manifest 경로
+  , MANIFEST_PATH : 'manifest/micm/solution-backend'
+
+  // Deploy Repository 의 해당 Application 의 manifest 에 지정된 해당 Image 의 Name ( ex : lgu-did/solution-backend )
+  // 해당 Image Name 은 실제로 존재하는 Image URL 이 아니며, CD pipeline 에서 실제 배포할 Image 정보 반영시 사용함
+  , IMAGE_NAME_IN_MANIFEST : 'lgu-did/solution-backend'
+
+  /*
+   * Source Repository 관련 Jenkins credentialsId
+   * - 해당 환경의 Jenkinsfile 에서 지정하지 않아도 Image 빌드시 공통 Pipeline 에서 자동으로 기본값 설정됨
+   * - 기본값 아닌 Jenkins credentialsId 를 사용하고자 하는 경우, 주석 해제 후 사용함
+   */
+  // , SOURCE_REPOSITORY_GIT_CREDENTIALS_ID : ''
+
+  /*
+   * base image 관련 정보
+   * - 해당 환경의 Jenkinsfile 에서 지정하지 않아도 Image 빌드시 공통 Pipeline 에서 자동으로 기본값 설정됨
+   * - 해당 환경에서 별도의 base image 를 사용하고자 하는 경우, 주석 해제 후 사용함
+   */
+
+  // , BASE_IMAGE_REGISTRY_URL : ''
+  // , BASE_IMAGE_NAME         : ''
+  // , BASE_IMAGE_VERSION      : ''
+
+]   // End of pipelineJobArgs
+
+/*
+ * SpringBoot/Gradle 기반 Application 공통 CI pipeline 실행
+ */
+micmCiGradlePipeline(pipelineJobArgs)

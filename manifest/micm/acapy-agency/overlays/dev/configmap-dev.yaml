@@ -1,0 +1,100 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: acapy-agency-env-configmap
+data:
+  ACAPY_LOG_LEVEL: "debug"
+  RUST_LOG: "debug"
+  ACAPY_AUTO_PROVISION: "true"   # 실행 시 필요한 Database가 생성되어 있지 않을 경우, 생성 및 초기화 작업을 자동 실행
+  
+  ACAPY_WALLET_TYPE: "askar"      # wallet의 형태(asker) (default[memory], basic)
+  ACAPY_WALLET_NAME: "acapy"      # wallet 이름, 생성되는 Database 이름
+
+  ACAPY_WALLET_STORAGE_TYPE: "postgres_storage"   # wallet 저장소 유형 (default[sqlite], basic[memory], ACAPY_WALLET_STORAGE_TYPE)
+  ##############################
+  # ACAPY_WALLET_STORAGE_CONFIG 값 내 url 'acapy-agency-service-external-acapy-postgresql' : Acapy PostgreSQL 접속 ExternalName Service
+  # @see service-dev.yaml
+  ##############################
+  ACAPY_WALLET_STORAGE_CONFIG: |+   # wallet 저장소 접근 설정 (ACAPY_WALLET_STORAGE_TYPE : postgres_storage 사용 시 )
+    {
+      "url":"acapy-agency-service-external-acapy-postgresql:15432",
+      "wallet_scheme":"MultiWalletSingleTable",
+      "max_connections":"5",
+      "min_idle_count":"0",
+      "connection_timeout":"5"
+    }
+  ACAPY_ADMIN_INSECURE_MODE: "false"              # admin api를 호출할 때 인증을 위해 사용될 X-API-KEY 설정 여부 (! 운영모드 시 사용하기)
+  ACAPY_ENDPOINT: "http://localhost:30006"        # 다른 Agent(대표적으로 mobile)가 Aca-py와 통신하게 될 endpoint (start option에서도 지정 가능, inbound port와 mapping)
+  ACAPY_WALLET_KEY_DERIVATION_METHOD: "kdf:argon2i:mod"  # 지갑 키 암호화에 사용되는 알고리즘 방식
+  ACAPY_PUBLIC_INVITES: "false"         # public DID를 사용해 conncection을 사용할지 (default : false)
+  ACAPY_MULTITENANT: "true"             # multitenant mode 활성화 여부
+  ACAPY_MULTITENANT_ADMIN: "true"       # multitenant mode 활성화 시 multitenancy admin api 공개 여부
+  ACAPY_MULTITENANCY_CONFIGURATION: |+  # multitenant에서 사용할 wallet 설정
+    {
+      "wallet_type":"askar-profile",
+      "wallet_name":"wallets",
+      "key_derivation_method":"kdf:argon2i:mod"
+    }
+  ACAPY_EMIT_NEW_DIDCOMM_PREFIX: "true"         # new DIDComm(did:sov:BzCbsNYhMrjHiqZDTUASHg;spec/) 대신에 old DIDComm(https://didcomm.org/)을 호환할지 여부 
+  ACAPY_EMIT_NEW_DIDCOMM_MIME_TYPE: "true"      # new DIDComm MIME type(application/ssi-agent-wire) 대신에 old DIDComm MIME type(application/didcomm-envelope-enc)을 호환할지 여부
+  ACAPY_IMAGE_URL: "https://robohash.org/acapy" # Aca-py agent를 공개(자체 검증)에 사용되는 image
+  ACAPY_ADMIN_CLIENT_MAX_REQUEST_SIZE: "16"     # requet 메시지 최대 크기(단위 Mb) (default : 1)
+  ACAPY_MAX_MESSAGE_SIZE: "16777216"            # inbound 메시지 최대 크기(단위 byte)
+  ACAPY_MAX_OUTBOUND_RETRY: "4"                 # 메시지 전송 오류 시 재시도 횟수 (default : 4)
+
+  ACAPY_ENABLE_UNDELIVERED_QUEUE: "false"        # 메시지 보관 queue 사용 여부
+  ACAPY_AUTO_ACCEPT_REQUESTS: "true"             # webhook & admin api를 기다리지 않고 request 자동 accept 여부 (default : false)
+  ACAPY_AUTO_RESPOND_CREDENTIAL_PROPOSAL: "true" # credential offer에 자동 response 여부
+  ACAPY_AUTO_RESPOND_CREDENTIAL_REQUEST: "true"  # credential request에 자동 response 여부
+
+  ### 다음 값들은 secret 참조 : @see deployment-dev.yaml
+  # ACAPY_WALLET_STORAGE_CREDS: |+   # wallet 저장소 접근에 필요한 인증 정보
+  #   {
+  #     "account":"",
+  #     "password":"",
+  #     "admin_account":"",
+  #     "admin_password":""
+  #   }
+  # ACAPY_WALLET_SEED: ""              # 기본 Wallet 생성을 위한 Seed값. Endorser role 이상의 seed
+  # ACAPY_WALLET_KEY: ""               # wallet 비밀번호
+  # ACAPY_ADMIN_API_KEY: ""            # admin api를 호출할 때 인증을 위해 사용될 X-API-KEY
+  # ACAPY_MULTITENANT_JWT_SECRET: ""
+
+  ### 주석 처리 : indy-node 에서 배포한 indy-node-genesis-configmap 의 값으로 대체
+  # ACAPY_GENESIS_TRANSACTIONS: |+
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: acapy-agency-file-configmap
+data:
+  logging.ini: |-
+    [loggers]
+    keys=root,aries_cloudagent
+
+    [handlers]
+    keys=consoleHandler
+
+    [formatters]
+    keys=simpleFormatter
+
+    [logger_root]
+    level=WARN
+    handlers=consoleHandler
+
+    [logger_aries_cloudagent]
+    level=DEBUG
+    handlers=consoleHandler
+    qualname=aries_cloudagent
+    propagate=0
+
+    [handler_consoleHandler]
+    class=StreamHandler
+    level=DEBUG
+    formatter=simpleFormatter
+    args=(sys.stdout,)
+
+    [formatter_simpleFormatter]
+    format=[%(asctime)s.%(msecs)03dZ] %(levelname)s %(name)s | %(message)s
+    datefmt=%Y-%m-%dT%H:%M:%S

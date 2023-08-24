@@ -1,0 +1,17 @@
+##############################
+# Headless Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: acapy-agency
+  name: acapy-agency-admin-service-headless
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+      targetPort: admin-api
+      protocol: TCP
+  selector:
+    app: acapy-agency

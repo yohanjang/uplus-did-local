@@ -1,0 +1,19 @@
+##############################
+# NodePort Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: solution-registry
+  name: solution-registry-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: slt-rgs
+      nodePort: 30003   # [ 개발 환경 ] solution-registry 전용 Nodeport 번호
+      protocol: TCP
+  selector:
+    app: solution-registry

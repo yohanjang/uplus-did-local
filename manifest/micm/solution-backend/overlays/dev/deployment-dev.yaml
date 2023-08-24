@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solution-backend-deployment
+  labels:
+    app: solution-backend
+spec:
+  selector:
+    matchLabels:
+      app: solution-backend
+  # RollingUpdate 설정
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: solution-backend
+    spec:
+      securityContext:
+        # User 'jboss' : uid=185(jboss) gid=185(jboss) groups=185(jboss)
+        runAsUser: 185
+        runAsGroup: 185
+        fsGroup : 185
+      # 'Pod Topology Spread Constraints'
+      # Reference : https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: "topology.kubernetes.io/zone"
+        whenUnsatisfiable: ScheduleAnyway   # DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: solution-backend
+      # volumes:
+      #   - name: etcacapy
+      #     configMap:
+      #       name: solution-backend-file-configmap
+      #       items:
+      #         - key: logging.ini
+      #           path: logging.ini
+
+      ### terminationGracePeriodSeconds : pod 종료시 timeout
+      ### lifecycle.preStop 보다 우선순위 높음 : 45초 설정 ( default : 30초 )
+      terminationGracePeriodSeconds: 45
+      containers:
+        - name: solution-backend-container
+          image: lgu-did/solution-backend
+          imagePullPolicy: IfNotPresent
+          # volumeMounts:
+          #   - name: etcacapy
+          #     mountPath: /etc/acapy
+
+          ### startupProbe : 해당 Pod 내 컨테이너의 application 이 시작되었는지 확인
+          ### startupProbe OK 전까지는 readinessProbe/livenessProbe 호출하지 않음
+          startupProbe:
+            httpGet:
+              path: /api/actuator/startup
+              port: slt-bkd
+            initialDelaySeconds: 120   # pod 최초 생성 후 대기시간 ( Defaults: 0 )
+            periodSeconds: 5          # probe 호출 주기 ( Defaults: 10 )
+            timeoutSeconds: 3         # probe 호출시 timeout ( Defaults: 1 )
+            failureThreshold: 5       # probe 가 실패할 수 있는 횟수 ( Defaults: 3 )
+          ### readinessProbe : 해당 Pod 가 traffic 을 받을 준비가 되어있는지 확인
+          ### 진단에 실패하면 엔드포인트(Endpoint) 컨트롤러는 해당 Pod 의 IP 를 endpoint 에서 제거
+          readinessProbe:
+            httpGet:
+              path: /api/actuator/health/readiness
+              port: slt-bkd
+            initialDelaySeconds: 120   # startupProbe.initialDelaySeconds 와 동일하게 적용
+            periodSeconds: 30         # probe 호출 주기
+            timeoutSeconds: 3         # probe 호출시 timeout
+            failureThreshold: 5       # probe 가 실패할 수 있는 횟수 ( Defaults: 3 )
+          ### livenessProbe : 해당 Pod 가 가동 중인지 (alive) 확인
+          ### Probe 호출 실패 횟수가 failureThreshold 초과시 Pod Restart 
+          livenessProbe:
+            httpGet:
+              path: /api/actuator/health/liveness
+              port: slt-bkd
+            initialDelaySeconds: 120   # startupProbe.initialDelaySeconds 와 동일하게 적용
+            periodSeconds: 30         # probe 호출 주기
+            timeoutSeconds: 3         # probe 호출시 timeout
+            failureThreshold: 5       # probe 가 실패할 수 있는 횟수 ( Defaults: 3 )
+
+          env:
+            ### 개별 Env 의 Secret 참조 ::: START
+
+            # Solution Postgreql 접속 Password
+            - name: DID_DATABASE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: micm-dev-postgresql-secret
+                  key: solution-user-password
+            # 개발환경 micm did 전용 secret 에 정의된 value 주입
+            - name: DID_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: micm-dev-did-secret
+                  key: SOLUTION_BACKEND_JWT_SECRET
+            - name: DID_SHA256_SALT
+              valueFrom:
+                secretKeyRef:
+                  name: micm-dev-did-secret
+                  key: SOLUTION_BACKEND_SHA256_SALT
+            - name: DID_ARIES_ADMIN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: micm-dev-did-secret
+                  key: ACAPY_ADMIN_API_KEY
+
+            ### 개별 Env 의 Secret 참조 ::: END
+          envFrom:
+            - configMapRef:
+                name: solution-backend-env-configmap
+          command:
+          - /bin/bash
+          - -c
+          - |
+            /opt/jboss/container/java/run/run-java.sh
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "0.5"
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"

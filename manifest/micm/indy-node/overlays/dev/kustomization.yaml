@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonAnnotations:
+  app: indy-node
+images:
+- name: lgu-did/indy-node
+  newName: nexus.example.com:5000/dmicma/indy-node-loc
+  newTag: 1.12.6-custom
+generatorOptions:
+  disableNameSuffixHash: true
+replicas:
+# indy-node 의 replicas 개수는 반드시 4 로 고정 필요
+- count: 4
+  name: monachain-indy-node
+resources:
+- ../../base
+- configmap-dev.yaml
+- service-dev.yaml
+patches:
+- path: statefulset-dev.yaml

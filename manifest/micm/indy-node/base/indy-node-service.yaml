@@ -1,0 +1,74 @@
+##############################
+# Headless Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  # 'indy-node' StatefulSet 의 Pod 명과 일치시킴
+  name: monachain-indy-node-0
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9701
+      targetPort: node-port   # 9701 : Indy Node 내부 통신 Port
+      name: node-port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  # 'indy-node' StatefulSet 의 Pod 명과 일치시킴
+  name: monachain-indy-node-1
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9701
+      targetPort: node-port   # 9701 : Indy Node 내부 통신 Port
+      name: node-port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  # 'indy-node' StatefulSet 의 Pod 명과 일치시킴
+  name: monachain-indy-node-2
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9701
+      targetPort: node-port   # 9701 : Indy Node 내부 통신 Port
+      name: node-port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  # 'indy-node' StatefulSet 의 Pod 명과 일치시킴
+  name: monachain-indy-node-3
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9701
+      targetPort: node-port   # 9701 : Indy Node 내부 통신 Port
+      name: node-port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-3

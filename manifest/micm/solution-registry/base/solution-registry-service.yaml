@@ -1,0 +1,17 @@
+##############################
+# Headless Service
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: solution-registry
+  name: solution-registry-service-headless
+spec:
+  clusterIP: None
+  ports:
+    - port: 8080
+      targetPort: slt-rgs
+      protocol: TCP
+  selector:
+    app: solution-registry

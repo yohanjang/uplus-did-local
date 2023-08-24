@@ -1,0 +1,114 @@
+############################################################
+# [ Helm Chart ] argo-cd ::: values-loc.yaml
+# 
+# [ Yaml Info ]
+# - Profile : loc
+############################################################
+
+global:
+  image:
+    # -- If defined, a repository applied to all Argo CD deployments
+    # repository: quay.io/argoproj/argocd
+    repository: nexus.example.com:5000/base/k8s-app
+    # -- Overrides the global Argo CD image tag whose default is the chart appVersion
+    tag: argoproj-argocd-v2.7.7
+
+  # -- If defined, uses a Secret to pull an image from a private Docker registry or repository
+  imagePullSecrets:
+  - name: private-image-registry
+
+## Redis
+redis:
+  # -- Enable redis
+  enabled: true
+  image:
+    # -- Redis repository
+    # repository: public.ecr.aws/docker/library/redis
+    repository: nexus.example.com:5000/base/k8s-app
+    # -- Redis tag
+    # tag: 7.0.11-alpine
+    tag: docker-library-redis-7.0.11-alpine
+
+  ## Prometheus redis-exporter sidecar
+  exporter:
+    # -- Enable Prometheus redis-exporter sidecar
+    enabled: false
+
+## Server
+server:
+  extraArgs:
+    - --insecure
+  replicas: 2
+  service:
+    type: NodePort
+    nodePortHttp: 30012
+    # nodePortHttps: 30012 # https 미사용
+  config:
+    accounts.did-admin: apiKey, login
+    accounts.did-cicd: apiKey, login
+    accounts.ddid-sync: login
+    accounts.did-read: login
+  rbacConfig:
+    # policy.csv is an file containing user-defined RBAC policies and role definitions (optional).
+    # Policy rules are in the form:
+    #   p, subject, resource, action, object, effect
+    # Role definitions and bindings are in the form:
+    #   g, subject, inherited-subject
+    # See https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/rbac.md for additional information.
+    policy.csv: |
+      p, role:cicd, applications, *, */*, allow
+      p, role:cicd, clusters, *, *, allow
+      p, role:cicd, projects, *, *, allow
+      p, role:cicd, repositories, *, *, allow
+      p, role:cicd, applications, *, */*, allow
+      p, role:sync, applications, get, */*, allow
+      p, role:sync, applications, sync, */*, allow
+      g, did-admin, role:admin
+      g, did-cicd, role:cicd
+      g, did-sync, role:sync
+      g, did-read, role:readonly
+    policy.default: role:''   # 항상 로그인 유도
+
+  ## Argo UI extensions
+  ## This function in tech preview stage, do expect instability or breaking changes in newer versions.
+  ## Ref: https://github.com/argoproj-labs/argocd-extensions
+  extensions:
+    # -- Enable support for Argo UI extensions
+    enabled: false
+
+## Controller
+controller:
+  # pod 배치 제어
+  # -- Assign custom [TopologySpreadConstraints] rules to the application controller
+  # @default -- `[]` (defaults to global.topologySpreadConstraints)
+  ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+  ## If labelSelector is left out, it will default to the labelSelector configuration of the deployment
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway   # DoNotSchedule
+  args:
+    # 원격 repository (Gitlab) 와 K8S 배포상태의 비교 주기 (default: 180초)
+    appResyncPeriod: "60"   # default = 180
+
+##########
+
+# [Reference]
+# https://www.opsmx.com/blog/argo-cd-installation-into-kubernetes-using-helm-or-manifest/
+## Custom resource configuration
+# crds:
+#   # -- Install and upgrade CRDs
+#   install: false
+
+## Dex
+dex:
+  # -- Enable dex
+  enabled: false
+
+redis-ha:
+  # -- Enables the Redis HA subchart and disables the custom Redis single node deployment
+  enabled: false
+  ## Prometheus redis-exporter sidecar
+  exporter:
+    # -- Enable Prometheus redis-exporter sidecar
+    enabled: false

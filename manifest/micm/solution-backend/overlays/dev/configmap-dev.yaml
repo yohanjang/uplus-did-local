@@ -1,0 +1,89 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: solution-backend-env-configmap
+data:
+  DID_ENV_PROFILE: "dev"
+
+  ### Solution 관련 서비스 가동 Port ::: START
+
+  # Solution Backend 가동 Port
+  DID_SOLUTION_BACKEND_SERVER_PORT: "8080"
+
+  # Solution Registry 가동 Port
+  DID_SOLUTION_REGISTRY_SERVER_PORT: "8080"
+
+  ### Solution 관련 서비스 가동 Port ::: END
+
+  ### solution Postgresql
+  DID_DATABASE_URL: "jdbc:postgresql://solution-backend-service-external-solution-postgresql:15432/solution-dev"
+  DID_DATABASE_SCHEME: "did_solution"
+  DID_DATABASE_USER: "solution-01"
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_DATABASE_PASSWORD: ""
+  DID_DATABASE_DDL_AUTO: "none"
+  HIBERNATE_SQL_COMMENT: "true"
+  P6SPY_ENABLE_LOGGING: "true"
+
+  ### Flyway
+  DID_FLYWAY_ENABLED: "false"
+  DID_FLYWAY_BASELINE_ON_MIGRATE: "false"
+
+  ### solution Redis
+  DID_REDIS_HOST: "solution-backend-service-external-solution-redis"
+  DID_REDIS_PORT: "15433"
+  DID_REDIS_DB_INDEX: "0"
+  DID_REDIS_POOL_MAX_ACTIVE: "8"
+  DID_REDIS_POOL_MAX_IDLE: "8"
+  DID_REDIS_POOL_MIN_IDLE: "0"
+
+  ### JWT
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_JWT_SECRET: ""
+  # DID_SHA256_SALT: ""
+
+  ### Feign Client
+  DID_REST_CLIENT_CONNECT_TIMEOUT: "10000"
+  DID_REST_CLIENT_READ_TIMEOUT: "30000"
+  DID_REST_CLIENT_LOG_LEVEL: "FULL"
+
+  ### aries
+  # acapy-agency 내부 접속 URL
+  DID_ARIES_ADMIN_URL: "http://solution-backend-service-external-acapy-agency:8080"
+  ### secret 대체 : @see deployment-dev.yaml
+  # DID_ARIES_ADMIN_API_KEY: ""
+  DID_ARIES_WALLET_TOKEN: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ3YWxsZXRfaWQiOiJmZGI3MjM0NC1mZDA3LTQ1YmUtYjUxYi1hZDhlZjQ0YzIwYmUiLCJpYXQiOjE2OTA1MDc0MDJ9.EXb_SL40DPMxW8yABN16G7EDZq-zVDZMbB39QxeM7_Y"
+
+  ### DID Variables
+  DID_ADMIN_WALLET_ID: "80b6df81-2600-41b4-aec2-61cbe5e2275f"
+  DID_ARIES_ADMIN_TOKEN: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ3YWxsZXRfaWQiOiI4MGI2ZGY4MS0yNjAwLTQxYjQtYWVjMi02MWNiZTVlMjI3NWYiLCJpYXQiOjE2ODE3MTY1NjN9.Wfy8hS-jMjfyTTzIrgOJ2jGA3LtsRqUTHblrJY-GyF8"
+  DID_SOLUTION_REGISTRY_URL: "http://solution-backend-service-external-solution-registry:8080"
+  DID_SERVICE_ENDPOINT: "http://solution-backend-service-external-service-backend:8080"
+  # [ TO-BE ] 추후 solution-backend 개발 도메인 적용 필요
+  DID_SOLUTION_BACKEND_URL: ""
+
+  DID_SOLUTION_CRYPTO_KEY_CHACHA20: "NghXzPicCYK6cvYpxuAe4U75u5I8wsc190BUvvmGHqE="
+  DID_SOLUTION_CRYPTO_NONCE: "07Aba9ad467d"
+
+  # # DID_solution_QR_URL : solution-backend 외부 접속 URL
+  # DID_solution_QR_URL: "https://dev-lemonaid.singlex.com"
+  # # DID_SOLUTION_BACKEND_URL : solution-backend 내부 접속 URL
+  # DID_SOLUTION_BACKEND_URL: "http://solution-backend-solution-headless:8080"
+  # DID_ENV_NAMESPACE: "tenant-lgcns"
+  # DID_SOLUTION_APIKEY: "tenant-lgcns"
+  # DID_solution_SERVER_ENV: "dev"
+  # # lil_url
+  # # idp_url
+  # # lil_api_key
+  # DID_IDPPLUS_APIKEY: "zXKnvmCZx3xoA4ADv9xrbLdqVoH57OjVistecrMm8iYEoUXV"
+
+  ### Logback Logging
+  DID_APP_LOGBACK_PATH: "classpath:logback-spring.xml"
+  DID_APP_ROOT_LOG_LEVEL: "DEBUG"
+  DID_APP_LOGS_PATH: "/home/jboss/logs"
+  DID_APP_LOGS_MAX_HISTROY: "15"
+  DID_APP_LOGS_MAX_FILE_SIZE: "500KB"
+  DID_APP_LOGS_TOTAL_SIZE_CAP: "100MB"
+
+  ### 삭제 예정
+  GCP_CREDENTIAL_KEY: "{}"

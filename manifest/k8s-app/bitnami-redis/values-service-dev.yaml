@@ -1,0 +1,48 @@
+global:
+  imagePullSecrets:
+  - private-image-registry
+
+image:
+  registry: nexus.example.com:5000
+  repository: base/k8s-app
+  tag: bitnami-redis-7.0.12-debian-11-r2
+  debug: true
+
+architecture: standalone
+
+auth:
+  enabled: false
+  sentinel: false
+
+master:
+  containerPorts:
+    redis: 15433
+  persistence:
+    enabled: false
+  service:
+    type: NodePort
+    ports:
+      redis: 15433
+    nodePorts:
+      redis: 30015
+
+# replica:
+#   replicaCount: 1
+#   persistence:
+#     enabled: true
+#     storageClass: "local-path"
+#     size: 3Gi
+
+# sentinel:
+#   enabled: false
+#   image:
+#     registry: nexus.example.com:5000
+#     repository: base/k8s-app
+#     tag: bitnami-redis-sentinel-7.0.12-debian-11-r1
+#   masterSet: redis-sentinel
+#   quorum: 1
+#   service:
+#     type: NodePort
+#     nodePorts:
+#       redis: 30015
+#       sentinel: 30016
