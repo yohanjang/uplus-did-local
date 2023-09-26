@@ -3,7 +3,7 @@ kind: Kustomization
 metadata:
   name: indy-node
 resources:
-  # Indy Node StatefulSet 공통 설정
-  - indy-node-statefulset.yaml
-  # Indy Node Service 공통 설정
-  - indy-node-service.yaml
+  # indy-Node ::: StatefulSet 공통 설정
+  - statefulset.yaml
+  # indy-Node ::: Service 공통 설정
+  - service.yaml

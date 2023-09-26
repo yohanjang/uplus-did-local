@@ -18,13 +18,13 @@ spec:
       labels:
         app: indy-node
     spec:
-      # K8S 에서 Image Pull 시 사용할 secret 명
-      imagePullSecrets:
-        - name: private-image-registry
+      ### 추후 Harbor 연동 secret 으로 변경 예정
+      # imagePullSecrets:
+      #  - name: private-image-registry
       containers:
         - name: indy-node-container
-          image: lgu-did/indy-node
-          imagePullPolicy: Always
+          image: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-indy-node
+          imagePullPolicy: IfNotPresent
           ports:
             - name: node-port
               containerPort: 9701   # 9701 : Indy Node 내부 통신 Port
@@ -34,18 +34,27 @@ spec:
             - name: NODE_NAME
               valueFrom:
                 fieldRef:
+                  apiVersion: v1
                   fieldPath: spec.nodeName
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
             - name: UID
               valueFrom:
                 fieldRef:
+                  apiVersion: v1
                   fieldPath: metadata.uid
             - name: POD_IP
               valueFrom:
                 fieldRef:
+                  apiVersion: v1
                   fieldPath: status.podIP
             - name: POD_NAME
               valueFrom:
                 fieldRef:
+                  apiVersion: v1
                   fieldPath: metadata.name
           # spec.template.spec.containers.name.resources : 각 overlays 에서 필요시 overriding
           resources:
