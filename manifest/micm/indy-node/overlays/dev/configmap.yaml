@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indy-node-env-configmap
+data:
+  LOG_LEVEL: debug  # info
+  RUST_LOG: debug   # warning
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indy-node-genesis-configmap
+data:
+  pool_transactions_genesis: |-
+    {"reqSignature":{},"txn":{"data":{"data":{"alias":"monachain-indy-node-0","blskey":"42v8GrisUgFW4wKqWHVkJggBxixzB8FTdhVFKxqsutDirNR9oBqvjt4PBKawGbqWnXoF52xQrsJyDGFJUwGwQHGfdsFQepp4qBWFyYAaDGoEmj8UPcdhW7UUUyjm3or9ph2wLZmGVqJ8x67VCyQq3wFnpx1GSLsNEy7hfn3Gg2qmQTh","blskey_pop":"RWmZjdPLieJR35dhCC8Fup1kHrcrDd8VLQNQrszTKK2JAUG5AoyVHSrbdksr5aXXc1b6RzskTvt1w85jG7xu1nKLNDyKNwiMYVwMAqa2WPk9UAuDeRYsVzzgGXNNxkUjQZi1Tp37CGh8Ps1jjjFv41VAJe4dv5tfTmC5UBrrH4uUYX","client_ip":"210.92.109.141","client_port":"32001","node_ip":"monachain-indy-node-0","node_port":"9701","services":["VALIDATOR"]},"dest":"AzvktfKahgx7opL2xurdhqphVW9SexcgfiAUoTCWtkmQ"},"metadata":{"from":"KM28teDRz9hLGQXfNn9HdZ"},"type":"0"},"txnMetadata":{"seqNo":1,"txnId":"e1e7890000c57b7574972bf5013d50576aa270b58e0f6f42efb3f25933afac47"},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"data":{"alias":"monachain-indy-node-1","blskey":"2emL5sFnNsN5eKBtdZumShZqrM7KDjPiWjT2mBWAxhhqNqedGN1FF3TDsD3mLUpsPpX3z3EZ6Am6DX5cFswpLJF1uUz2aCSfYoT2TYcacsJvQJGdcHvRfozHUrwW5Bigi5whEFoZMuoKTdyDpkgtMfh6gayufcfCJxGLKn4Cvdh9n5g","blskey_pop":"RYCwSF5acX9AvKC6hs6UVYePoZhHSkgLTG5ULZZe1Gz4pECngvo8f7pu5JuXwtij8Vp5C4XaonyhsWNw8W5tpG1tgazMBmiHp9buMK1X3p23MLZ8ZomPTcG5CcJjHS5i4zucjeHMPhC4TUog3vRJzwdbhfF9NhcTacyVMQAveNdq2w","client_ip":"210.92.109.141","client_port":"32002","node_ip":"monachain-indy-node-1","node_port":"9701","services":["VALIDATOR"]},"dest":"8BRR3QY5Gcjr7NHbLmdKdNVSUhd48HYo4rDGEByVpr72"},"metadata":{"from":"EB2bQesSJqPuqtPPq2eEg8"},"type":"0"},"txnMetadata":{"seqNo":2,"txnId":"eee340bfee493103811ad88f7b14e7186580c96c59a54f58a904b93133cebc7c"},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"data":{"alias":"monachain-indy-node-2","blskey":"12iZHsnaWyqzSXaNtVXmxatBf2buEXyCWTXkCHTaTbUwUaDPAuMPCtigYrkvc6Z8vv9ByumQTzUvCCizfWKhEfAd7t1CJvWxdUxMsY6swb91xpiUHNoUqC2Tk8gtHFwNiBNfVbmXPAL1zRH9kTGaEr3Js8knVEK8qzrfPqGzUYq7jrH","blskey_pop":"RLPwVhdztykwAjrAf4EGoQdeCHECCVCqqUPC8c1X9eAFicCDVjD8wnppUZ4KfknN3TjECVRs49Cnjxw49BmNVQAuv7ZiVc6BuRwvrfhkas6yHdMhhYvfHQPTxUogD55SmhuQnQfDnFVe5CQWdxqBNFguhdNP8gGRV1JbMokkmXGyAX","client_ip":"210.92.109.141","client_port":"32003","node_ip":"monachain-indy-node-2","node_port":"9701","services":["VALIDATOR"]},"dest":"2QGFJstJVjnKNN9JZqb5DvVZFYhyku1LT4jxri4fC47o"},"metadata":{"from":"3a6cwrU9FSMnf24rToD8W8"},"type":"0"},"txnMetadata":{"seqNo":3,"txnId":"3500b13314015c2d30da6db10a93533dc454d7344fe1771ad1cfb88c9bf2b82d"},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"data":{"alias":"monachain-indy-node-3","blskey":"3AdFTHQe9qf24PFi7ionsS96T4CumZFTQN8rP8mNgfcZQegJhhH6Qor5ZpuSRsFu4bH7EXdf9mAnu929FoGNHFz49dBYTJfLqsVnXfygCLHwD9nPBWtGsrLoBJLb9qE3qf261vz3VsA2QCH71rmbb8tarzyxredm6Qw4VcFu66ExwCb","blskey_pop":"Qz7hNTjC6Fm6Po5bjeZWvcdgUkA1bi1msZ7YYgXxYYBTEEiNF12PsVoyRAbcUTM8q3nSJWPDxSky2nd3PBXWgNu2J6f7fdAoNhqoJkpe4vK6Jp6QBLx5wdf3qLLa1zjFQsXppVjN7LXCKemN5wHL99D4FcSw4cdHvZfJJZJnX74WGo","client_ip":"210.92.109.141","client_port":"32004","node_ip":"monachain-indy-node-3","node_port":"9701","services":["VALIDATOR"]},"dest":"7fdgHaq7DSNH6AWmgVTriULwgpPzEfoU68ikZkLr7u9r"},"metadata":{"from":"DENdbgiCeKQrWuCZ51DHKV"},"type":"0"},"txnMetadata":{"seqNo":4,"txnId":"018c9915ad710d10faec3fc01d606ddd18c85242ab214c5497d74d8db6c5b503"},"ver":"1"}
+  domain_transactions_genesis: |-
+    {"reqSignature":{},"txn":{"data":{"alias":"mona_wallet_trustee","dest":"D6JYreDGbTuy6ETdBAhEBr","role":"0","verkey":"~5fkU8etRwHUYVDX5JuPXg3"},"metadata":{},"type":"1"},"txnMetadata":{"seqNo":1},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"dest":"KM28teDRz9hLGQXfNn9HdZ","role":"2","verkey":"~YLDi1jchgvRG88e8A4MiFc"},"metadata":{"from":"D6JYreDGbTuy6ETdBAhEBr"},"type":"1"},"txnMetadata":{"seqNo":2},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"dest":"EB2bQesSJqPuqtPPq2eEg8","role":"2","verkey":"~KVNsjAkgcsfB7YdzrJMmPW"},"metadata":{"from":"D6JYreDGbTuy6ETdBAhEBr"},"type":"1"},"txnMetadata":{"seqNo":3},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"dest":"3a6cwrU9FSMnf24rToD8W8","role":"2","verkey":"~MJz3x2Kv8ifNbke8oDjziH"},"metadata":{"from":"D6JYreDGbTuy6ETdBAhEBr"},"type":"1"},"txnMetadata":{"seqNo":4},"ver":"1"}
+    {"reqSignature":{},"txn":{"data":{"dest":"DENdbgiCeKQrWuCZ51DHKV","role":"2","verkey":"~EQC2eSAEALekB8tCfz2Wmn"},"metadata":{"from":"D6JYreDGbTuy6ETdBAhEBr"},"type":"1"},"txnMetadata":{"seqNo":5},"ver":"1"}

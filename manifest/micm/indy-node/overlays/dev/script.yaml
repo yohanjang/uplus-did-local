@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: indy-node-script
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+
+    # Environment
+    DIR_LOG_PATH=/var/log/indy/monachain_did
+    FILE_NAME_REPLACE=/script/replace_log.sh
+    FILE_NAME_LOG=${HOSTNAME}.log
+
+    # execute log rotate
+    ${FILE_NAME_REPLACE} ${DIR_LOG_PATH} ${FILE_NAME_LOG} &
+
+  replace_log.sh: |
+    #!/bin/bash
+
+    # Environment
+    export INDY_NODE_LOG_HOME=${1:-/var/log/indy/monachain_did}
+    export INDY_NODE_LOG_FILE_NAME=${2:-monachain-indy-node-0.log}
+    export INDY_NODE_LOG_FULL_NAME=${INDY_NODE_LOG_HOME}/${INDY_NODE_LOG_FILE_NAME}
+    export LOG_DELETE_DATE=30
+
+    while [ true ];
+    do
+      exec_min=$(date +%Y%m%d%H)
+      echo "[${HOSTNAME}] exec min >>> ${exec_min}" >> ${INDY_NODE_LOG_HOME}/replace.log
+
+      # UTC 15:00 = KST 24:00
+      if [[ ${exec_min: (-2)} -eq "15" ]];then
+        echo "[${HOSTNAME}] rotate log file & delete old log file" >> ${INDY_NODE_LOG_HOME}/replace.log
+        # rename log file (.log -> .log-yyyymmddHH)
+        cp ${INDY_NODE_LOG_FULL_NAME} ${INDY_NODE_LOG_FULL_NAME}_`date +%Y%m%d%H`
+        truncate -s 0 ${INDY_NODE_LOG_FULL_NAME}
+
+        # delete 주석
+        # # delete old log file
+        # rm ${INDY_NODE_LOG_FULL_NAME}_`date +%Y%m%d%H -d "${LOG_DELETE_DATE} day ago"`
+      fi
+
+      sleep $((1*60*60))
+    done

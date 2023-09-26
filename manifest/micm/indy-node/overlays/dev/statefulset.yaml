@@ -20,6 +20,9 @@ spec:
       labels:
         app: indy-node
     spec:
+      # indy-node, acapy-agency 전용 serviceAccount 지정
+      serviceAccount: indy
+      # securityContext '1001' 지정 필요 : 미지정시 Pod 실행 중 permission error 발생
       securityContext:
         # User 'indy' : uid=1001(indy) gid=1001(indy) groups=1001(indy)
         runAsUser: 1001
@@ -35,7 +38,8 @@ spec:
           matchLabels:
             app: indy-node
       volumes:
-        - name: genesis-volume
+        # genesis
+        - name: indy-node-genesis-volume
           configMap:
             name: indy-node-genesis-configmap
             items:
@@ -45,18 +49,42 @@ spec:
                 path: pool_transactions_genesis
               - key: domain_transactions_genesis
                 path: domain_transactions_genesis
-
+        # data
+        - name: indy-node-data-volume
+          persistentVolumeClaim:
+            claimName: dmicma-data-volume-claim
+        # logs
+        - name: indy-node-logs-volume
+          persistentVolumeClaim:
+            claimName: dmicma-logs-volume-claim
+        # Script
+        - name: indy-node-script-volume
+          configMap:
+            name: indy-node-script
+            # mount 시 'root:root' 로 지정됨 : 일반 계정으로 script 실행 가능하도록 0777 로 지정 
+            defaultMode: 0777
       ### terminationGracePeriodSeconds : pod 종료시 timeout
-      ### lifecycle.preStop 보다 우선순위 높음 : 45초 설정 ( default : 30초 )
+      ### lifecycle.preStop 보다 우선순위 높음 : 30초 설정 ( default : 30초 )
       terminationGracePeriodSeconds: 30
       containers:
         - name: indy-node-container
-          image: lgu-did/indy-node
-          imagePullPolicy: IfNotPresent
+          image: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-indy-node
+          imagePullPolicy: Always
           volumeMounts:
-            - name: genesis-volume
+            # genesis
+            - name: indy-node-genesis-volume
               mountPath: /etc/indy/monachain_did
-
+            # data
+            - name: indy-node-data-volume
+              mountPath: /var/lib/indy/monachain_did/data
+              subPathExpr: indy-node/$(POD_NAME)
+            # logs
+            - name: indy-node-logs-volume
+              mountPath: /var/log/indy/monachain_did
+              subPathExpr: indy-node
+            ### Pod 내 '/script' 경로에 configmap 지정 script 들을 일괄 mount
+            - name: indy-node-script-volume
+              mountPath: /script
           ### startupProbe : 해당 Pod 내 컨테이너의 application 이 시작되었는지 확인
           ### startupProbe OK 전까지는 readinessProbe/livenessProbe 호출하지 않음
           startupProbe:
@@ -85,17 +113,26 @@ spec:
             timeoutSeconds: 3         # probe 호출시 timeout
             failureThreshold: 5       # probe 가 실패할 수 있는 횟수 ( Defaults: 3 )
 
+          env:
+            # 배포 환경 구분자
+            - name: overlays_profile
+              value: dev
+
           envFrom:
+            # config.yaml 내 indy-node-env-configmap
             - configMapRef:
                 name: indy-node-env-configmap
+            # config.yaml 내 indy-node-genesis-configmap
             - configMapRef:
                 name: indy-node-genesis-configmap
+
           command:
           - /bin/bash
           - -c
           - |
             # \$(hostname) : 'monachain-indy-node-0' ~ 'monachain-indy-node-3' 중의 하나
-            start_indy_node $(hostname) 0.0.0.0 9701 0.0.0.0 9702
+            start_indy_node $(hostname) 0.0.0.0 9701 0.0.0.0 9702 \
+            && /script/entrypoint.sh
           resources:
             limits:
               memory: "512Mi"

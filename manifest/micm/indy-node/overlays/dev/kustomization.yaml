@@ -3,18 +3,20 @@ kind: Kustomization
 commonAnnotations:
   app: indy-node
 images:
-- name: lgu-did/indy-node
-  newName: nexus.example.com:5000/dmicma/indy-node-loc
-  newTag: 1.12.6-custom
+- name: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-indy-node
+  # 개발 환경 image url 로 override : base 에 지정된 image url 과 동일
+  newName: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-indy-node
+  newTag: 1.0.0
 generatorOptions:
-  disableNameSuffixHash: true
+  disableNameSuffixHash: false
 replicas:
 # indy-node 의 replicas 개수는 반드시 4 로 고정 필요
 - count: 4
   name: monachain-indy-node
 resources:
 - ../../base
-- configmap-dev.yaml
-- service-dev.yaml
+- configmap.yaml
+- service.yaml
+- script.yaml
 patches:
-- path: statefulset-dev.yaml
+- path: statefulset.yaml

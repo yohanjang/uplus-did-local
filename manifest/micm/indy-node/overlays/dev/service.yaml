@@ -1,0 +1,152 @@
+##############################
+# NodePort Service
+# - 개발 환경 indy-node 의 nodePort : 32001 ~ 32004 로 지정
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-0-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 9702
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      nodePort: 32001
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-1-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 9702
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      nodePort: 32002
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-2-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 9702
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      nodePort: 32003
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-3-service-nodeport
+spec:
+  externalTrafficPolicy: Cluster
+  type: NodePort
+  ports:
+    - port: 9702
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      nodePort: 32004
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-3
+---
+
+##############################
+# externalIPs Service
+# - 개발 환경 indy-node 의 nodePort 와 동일하게 32001 ~ 32004 로 지정
+##############################
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-0-service-external-ips
+spec:
+  type: ClusterIP
+  ports:
+    - port: 32001
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-0
+  externalIPs:
+    - 210.92.109.141   # 개발 Indy Proxy 지정 Public IP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-1-service-external-ips
+spec:
+  type: ClusterIP
+  ports:
+    - port: 32002
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-1
+  externalIPs:
+    - 210.92.109.141   # 개발 Indy Proxy 지정 Public IP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-2-service-external-ips
+spec:
+  type: ClusterIP
+  ports:
+    - port: 32003
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-2
+  externalIPs:
+    - 210.92.109.141   # 개발 Indy Proxy 지정 Public IP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: indy-node
+  name: indy-node-3-service-external-ips
+spec:
+  type: ClusterIP
+  ports:
+    - port: 32004
+      targetPort: client-port   # 9702 : Indy Node 외부 통신 Port
+      protocol: TCP
+  selector:
+    app: indy-node
+    statefulset.kubernetes.io/pod-name: monachain-indy-node-3
+  externalIPs:
+    - 210.92.109.141   # 개발 Indy Proxy 지정 Public IP
