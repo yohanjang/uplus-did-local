@@ -19,38 +19,54 @@ spec:
       labels:
         app: acapy-agency
     spec:
+      # indy-node, acapy-agency 전용 serviceAccount 지정
+      serviceAccount: indy
+      # securityContext '1001' 지정 필요 : 미지정시 Pod 실행 중 permission error 발생
       securityContext:
         # User 'indy' : uid=1001(indy) gid=1001(indy) groups=1001(indy)
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup : 1001
-      # 'Pod Topology Spread Constraints'
-      # Reference : https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: "topology.kubernetes.io/zone"
-        whenUnsatisfiable: ScheduleAnyway   # DoNotSchedule
-        labelSelector:
-          matchLabels:
-            app: acapy-agency
       volumes:
+        # etcacapy
         - name: etcacapy
           configMap:
             name: acapy-agency-file-configmap
             items:
               - key: logging.ini
                 path: logging.ini
+        # logs
+        - name: acapy-agency-logs-volume
+          persistentVolumeClaim:
+            claimName: dmicma-logs-volume-claim
+        # Script
+        - name: acapy-agency-script-volume
+          configMap:
+            name: acapy-agency-script
+            # mount 시 'root:root' 로 지정됨 : 일반 계정으로 script 실행 가능하도록 0777 로 지정 
+            defaultMode: 0777
 
       ### terminationGracePeriodSeconds : pod 종료시 timeout
       ### lifecycle.preStop 보다 우선순위 높음 : 45초 설정 ( default : 30초 )
       terminationGracePeriodSeconds: 45
       containers:
         - name: acapy-agency-container
-          image: lgu-did/acapy-agency
-          imagePullPolicy: IfNotPresent
+          image: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-acapy
+          imagePullPolicy: Always
           volumeMounts:
+            # etcacapy
             - name: etcacapy
               mountPath: /etc/acapy
+            # logs
+            - name: acapy-agency-logs-volume
+              # 환경변수 ACAPY_LOG_FILE 의 파일명 제외한 경로로 지정
+              # @see configmap.yaml
+              mountPath: /home/indy/logs
+              subPathExpr: acapy-agency
+
+            ### Pod 내 '/script' 경로에 configmap 지정 script 들을 일괄 mount
+            - name: acapy-agency-script-volume
+              mountPath: /script
 
           ### startupProbe : 해당 Pod 내 컨테이너의 application 이 시작되었는지 확인
           ### startupProbe OK 전까지는 readinessProbe/livenessProbe 호출하지 않음
@@ -83,12 +99,17 @@ spec:
             timeoutSeconds: 3         # probe 호출시 timeout
             failureThreshold: 5       # probe 가 실패할 수 있는 횟수 ( Defaults: 3 )
           env:
+            # 배포 환경 구분자
+            - name: overlays_profile
+              value: dev
+
             ### 개별 Env 의 ConfigMap 참조 ::: START
 
             # indy-node 에서 배포한 indy-node-genesis-configmap 의 pool_transactions_genesis 키의 value 주입
             - name: ACAPY_GENESIS_TRANSACTIONS
               valueFrom:
                 configMapKeyRef:
+                  # indy-node 의 configmap 에 지정된 pool_transactions_genesis 를 참조
                   name: indy-node-genesis-configmap
                   key: pool_transactions_genesis
 
@@ -96,41 +117,46 @@ spec:
 
             ### 개별 Env 의 Secret 참조 ::: START
 
-            # 개발환경 micm postgresql 전용 secret 에 정의된 value 주입
+            # 개발 환경 micm postgresql 전용 secret 에 정의된 value 주입
             - name: ACAPY_WALLET_STORAGE_CREDS
               valueFrom:
                 secretKeyRef:
-                  name: micm-dev-postgresql-secret
+                  name: micm-postgresql-secret-dev
                   key: ACAPY_WALLET_STORAGE_CREDS
 
-            # 개발환경 micm did 전용 secret 에 정의된 value 주입
+            # 개발 환경 micm acapy-agency 전용 secret 에 정의된 value 주입
             - name: ACAPY_ADMIN_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: micm-dev-did-secret
+                  name: micm-acapy-agency-secret-dev
                   key: ACAPY_ADMIN_API_KEY
             - name: ACAPY_MULTITENANT_JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: micm-dev-did-secret
+                  name: micm-acapy-agency-secret-dev
                   key: ACAPY_MULTITENANT_JWT_SECRET
             - name: ACAPY_WALLET_SEED
               valueFrom:
                 secretKeyRef:
-                  name: micm-dev-did-secret
+                  name: micm-acapy-agency-secret-dev
                   key: ACAPY_WALLET_SEED
             - name: ACAPY_WALLET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: micm-dev-did-secret
+                  name: micm-acapy-agency-secret-dev
                   key: ACAPY_WALLET_KEY
 
             ### 개별 Env 의 Secret 참조 ::: END
+
           envFrom:
             - configMapRef:
                 name: acapy-agency-env-configmap
-          command: ["aca-py"]
+
+          ### 임시로 aca-py 로 원복
+          command: ["/script/entrypoint.sh"]
+          # command: ["aca-py"]
           args:
+            - aca-py
             - start
             - --admin
             - 0.0.0.0

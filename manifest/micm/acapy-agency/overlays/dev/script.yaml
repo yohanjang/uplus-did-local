@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: acapy-agency-script
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+
+    # Environment
+    DIR_LOG_PATH=/home/indy/logs
+    FILE_NAME_REPLACE=/script/replace_log.sh
+    FILE_NAME_LOG=${HOSTNAME}_acapy.log
+
+    # execute log rotate
+    ${FILE_NAME_REPLACE} ${DIR_LOG_PATH} ${FILE_NAME_LOG} &
+
+    # aca-py start command
+    echo ${@}
+    ${@} >> ${DIR_LOG_PATH}/${FILE_NAME_LOG} 2>&1
+
+  replace_log.sh: |
+    #/bin/bash
+
+    # Environment
+    export ACAPY_LOG_HOME=${1:-/home/indy/logs}
+    export ACAPY_LOG_FILE_NAME=${2:-acapy.log}
+    export LOG_DELETE_DATE=30
+
+    while [ true ];
+    do
+      exec_min=$(date +%Y%m%d%H)
+      echo "[${HOSTNAME}] exec min >>> ${exec_min}" >> ${ACAPY_LOG_HOME}/replace.log
+
+      # UTC 15:00 = KST 24:00
+      if [[ ${exec_min: (-2)} -eq "15" ]];then
+        echo "[${HOSTNAME}] rotate log file & delete old log file" >> ${ACAPY_LOG_HOME}/replace.log
+        # rename log file (.log -> .log-yyyymmddHH)
+        cp ${ACAPY_LOG_HOME}/${ACAPY_LOG_FILE_NAME} ${ACAPY_LOG_HOME}/${ACAPY_LOG_FILE_NAME}_`date +%Y%m%d%H`
+        truncate -s 0 ${ACAPY_LOG_HOME}/${ACAPY_LOG_FILE_NAME}
+
+        # delete 주석
+        # # delete old log file
+        # rm ${ACAPY_LOG_HOME}/${ACAPY_LOG_FILE_NAME}_`date +%Y%m%d%H -d "${LOG_DELETE_DATE} day ago"`
+      fi
+
+      sleep $((1*60*60))
+    done

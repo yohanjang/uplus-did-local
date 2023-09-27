@@ -3,17 +3,17 @@ kind: Kustomization
 commonAnnotations:
   app: acapy-agency
 images:
-- name: lgu-did/acapy-agency
-  newName: nexus.example.com:5000/dmicma/acapy-agency-loc
-  newTag: 0.7.5-custom
+- name: harbor-core.lguplus-registry.svc.cluster.local/micm-dev/uplus-acapy
+  newTag: 0.7.5
 generatorOptions:
-  disableNameSuffixHash: true
+  disableNameSuffixHash: false
 replicas:
 - count: 1
   name: acapy-agency-deployment
 resources:
 - ../../base
-- configmap-dev.yaml
-- service-dev.yaml
+- configmap.yaml
+- route.yaml
+- script.yaml
 patches:
-- path: deployment-dev.yaml
+- path: deployment.yaml

@@ -1,0 +1,31 @@
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: acapy-admin
+  annotations:
+    ## never: route 에서 기존 X-Forwarded-For 변경하지 않음
+    haproxy.router.openshift.io/set-forwarded-headers: never
+spec:
+  host: acapy-admin.dmicm.lguplus.co.kr
+  to:
+    kind: Service
+    name: acapy-agency-admin-service-headless
+    weight: 100
+  port:
+    targetPort: admin-api
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: acapy-api
+  annotations:
+    ## never: route 에서 기존 X-Forwarded-For 변경하지 않음
+    haproxy.router.openshift.io/set-forwarded-headers: never
+spec:
+  host: acapy-api.dmicm.lguplus.co.kr
+  to:
+    kind: Service
+    name: acapy-agency-client-service-headless
+    weight: 100
+  port:
+    targetPort: inbound

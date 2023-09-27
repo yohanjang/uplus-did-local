@@ -127,12 +127,11 @@ spec:
                 name: indy-node-genesis-configmap
 
           command:
+          # \$(hostname) : 'monachain-indy-node-0' ~ 'monachain-indy-node-3' 중의 하나
           - /bin/bash
           - -c
           - |
-            # \$(hostname) : 'monachain-indy-node-0' ~ 'monachain-indy-node-3' 중의 하나
-            start_indy_node $(hostname) 0.0.0.0 9701 0.0.0.0 9702 \
-            && /script/entrypoint.sh
+            /script/entrypoint.sh start_indy_node $(hostname) 0.0.0.0 9701 0.0.0.0 9702
           resources:
             limits:
               memory: "512Mi"

@@ -4,6 +4,8 @@ metadata:
   name: acapy-agency-env-configmap
 data:
   ACAPY_LOG_LEVEL: "debug"
+  # script.yaml 참고 / aca-py start 시 log file append 형태로 수정
+  #ACAPY_LOG_FILE: "/home/indy/logs/acapy.log"
   RUST_LOG: "debug"
   ACAPY_AUTO_PROVISION: "true"   # 실행 시 필요한 Database가 생성되어 있지 않을 경우, 생성 및 초기화 작업을 자동 실행
   
@@ -13,18 +15,18 @@ data:
   ACAPY_WALLET_STORAGE_TYPE: "postgres_storage"   # wallet 저장소 유형 (default[sqlite], basic[memory], ACAPY_WALLET_STORAGE_TYPE)
   ##############################
   # ACAPY_WALLET_STORAGE_CONFIG 값 내 url 'acapy-agency-service-external-acapy-postgresql' : Acapy PostgreSQL 접속 ExternalName Service
-  # @see service-dev.yaml
+  # @see service.yaml
   ##############################
   ACAPY_WALLET_STORAGE_CONFIG: |+   # wallet 저장소 접근 설정 (ACAPY_WALLET_STORAGE_TYPE : postgres_storage 사용 시 )
     {
-      "url":"acapy-agency-service-external-acapy-postgresql:15432",
+      "url":"acapy-agency-service-external-acapy-postgresql:5432",
       "wallet_scheme":"MultiWalletSingleTable",
       "max_connections":"5",
       "min_idle_count":"0",
       "connection_timeout":"5"
     }
   ACAPY_ADMIN_INSECURE_MODE: "false"              # admin api를 호출할 때 인증을 위해 사용될 X-API-KEY 설정 여부 (! 운영모드 시 사용하기)
-  ACAPY_ENDPOINT: "http://localhost:30006"        # 다른 Agent(대표적으로 mobile)가 Aca-py와 통신하게 될 endpoint (start option에서도 지정 가능, inbound port와 mapping)
+  ACAPY_ENDPOINT: "https://dmicm.uplus.co.kr/acapy"        # 다른 Agent(대표적으로 mobile)가 Aca-py와 통신하게 될 endpoint (start option에서도 지정 가능, inbound port와 mapping)
   ACAPY_WALLET_KEY_DERIVATION_METHOD: "kdf:argon2i:mod"  # 지갑 키 암호화에 사용되는 알고리즘 방식
   ACAPY_PUBLIC_INVITES: "false"         # public DID를 사용해 conncection을 사용할지 (default : false)
   ACAPY_MULTITENANT: "true"             # multitenant mode 활성화 여부

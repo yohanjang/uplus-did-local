@@ -12,7 +12,12 @@ data:
     FILE_NAME_LOG=${HOSTNAME}.log
 
     # execute log rotate
+    echo "${FILE_NAME_REPLACE} ${DIR_LOG_PATH} ${FILE_NAME_LOG} &"
     ${FILE_NAME_REPLACE} ${DIR_LOG_PATH} ${FILE_NAME_LOG} &
+
+    # start indy node
+    echo ${@}
+    ${@}
 
   replace_log.sh: |
     #!/bin/bash
